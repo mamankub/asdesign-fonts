@@ -1,5 +1,5 @@
 [package]
-name = "craft-fonts-tests"
+name = "asdesign-fonts-tests"
 description = "Assertions on the fonts themselves: checksums, licences, names, script coverage and vertical-text support."
 version.workspace = true
 edition.workspace = true
@@ -9,7 +9,7 @@ rust-version.workspace = true
 publish = false
 
 [dependencies]
-craft-fonts = { path = "../craft-fonts" }
+asdesign-fonts = { path = "../asdesign-fonts" }
 
 [dev-dependencies]
 skrifa = "0.48"

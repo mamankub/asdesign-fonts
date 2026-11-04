@@ -1,6 +1,6 @@
 [package]
-name = "craft-fonts"
-description = "The Crafting Apps' shared font assets: the manifest, finding a craft-fonts checkout, and loading or embedding the fonts."
+name = "asdesign-fonts"
+description = "The ASDesign apps' shared font assets: the manifest, finding a asdesign-fonts checkout, and loading or embedding the fonts."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

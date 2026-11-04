@@ -60,5 +60,5 @@ fn main() {
 /// Build scripts report errors by failing; this keeps the message readable.
 #[allow(clippy::panic)]
 fn fail(msg: &str) -> ! {
-    panic!("craft-fonts: {msg}")
+    panic!("asdesign-fonts: {msg}")
 }

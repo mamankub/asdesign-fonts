@@ -1,12 +1,12 @@
 //! Assertions on the font files themselves.
 
-use craft_fonts::{FONTS, Font, for_script};
+use asdesign_fonts::{FONTS, Font, for_script};
 use sha2::{Digest, Sha256};
 use skrifa::raw::TableProvider;
 use skrifa::{FontRef, MetadataProvider, string::StringId};
 
 fn bytes(f: &Font) -> Vec<u8> {
-    std::fs::read(craft_fonts_tests::repo_root().join(f.file))
+    std::fs::read(asdesign_fonts_tests::repo_root().join(f.file))
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
@@ -26,7 +26,7 @@ fn every_file_matches_its_manifest_checksum() {
 #[test]
 fn every_font_ships_its_licence() {
     for f in FONTS {
-        let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(f.licence_file))
+        let text = std::fs::read_to_string(asdesign_fonts_tests::repo_root().join(f.licence_file))
             .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
         if f.licence == "OFL-1.1" {
             assert!(

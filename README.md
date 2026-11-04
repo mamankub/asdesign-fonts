@@ -1,7 +1,7 @@
-craft-fonts
+asdesign-fonts
 ===========
 
-Reusable fonts for the Crafting Apps.
+Reusable fonts for the ASDesign apps.
 
 This library is meant to have the following:
 
@@ -21,9 +21,9 @@ This library is meant to have the following:
 | `fonts/` | The font files, one directory per family, each with its licence. |
 | `fonts/manifest.txt` | Machine-readable list of every font: family, style, file, scripts, licence, SHA-256, pinned source. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
-| `crates/craft-fonts` | Rust: the manifest as a static table, finding a checkout (`CRAFT_FONTS_DIR`), loading it, and an `embed` feature that compiles the fonts in. |
-| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family names, Japanese coverage and outlines, vertical-text (`vert`/`vrt2`) support. |
-| `docs/integration.md` | How an app uses craft-fonts as a fully optional build input. |
+| `crates/asdesign-fonts` | Rust: the manifest as a static table, finding a checkout (`ASDESIGN_FONTS_DIR`), loading it, and an `embed` feature that compiles the fonts in. |
+| `crates/asdesign-fonts-tests` | Tests asserted on these fonts: checksums, licences, family names, Japanese coverage and outlines, vertical-text (`vert`/`vrt2`) support. |
+| `docs/integration.md` | How an app uses asdesign-fonts as a fully optional build input. |
 
 ### Fonts
 
@@ -38,20 +38,20 @@ This library is meant to have the following:
 
 ## How the apps use it
 
-**Fully optional, never required.** The apps don't list craft-fonts in `Cargo.toml` (Cargo would
-fetch it for every build). Building with `CRAFT_FONTS_DIR=<path to this checkout>` makes an app
+**Fully optional, never required.** The apps don't list asdesign-fonts in `Cargo.toml` (Cargo would
+fetch it for every build). Building with `ASDESIGN_FONTS_DIR=<path to this checkout>` makes an app
 embed the fonts in `fonts/manifest.txt`; without it, the app builds and runs as before. Release
 builds check out a pinned commit of this repo and set the option. See
 [`docs/integration.md`](docs/integration.md).
 
-**Font assets for the Crafting Apps belong here**, not in the app repos: add the file, its licence,
+**Font assets for the ASDesign apps belong here**, not in the app repos: add the file, its licence,
 a manifest line and an attribution row, and the tests check it.
 
 ## Develop
 
 ```sh
 cargo test --workspace                       # all font assertions
-cargo test -p craft-fonts --features embed   # the embedded bytes match the files
+cargo test -p asdesign-fonts --features embed   # the embedded bytes match the files
 ```
 
 Code is MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`); each font keeps its own licence.

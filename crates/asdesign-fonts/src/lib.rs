@@ -1,13 +1,13 @@
-//! The Crafting Apps' shared font assets.
+//! The ASDesign apps' shared font assets.
 //!
 //! The fonts live in this repository's `fonts/` directory and are listed in `fonts/manifest.txt`.
-//! This crate exposes that manifest ([`FONTS`]), finds a craft-fonts checkout at run time
+//! This crate exposes that manifest ([`FONTS`]), finds a asdesign-fonts checkout at run time
 //! ([`dir_from_env`]), loads fonts from one ([`load`]), and with the `embed` feature compiles them
 //! into the binary ([`embedded`]).
 //!
 //! The apps do **not** depend on this crate: Cargo resolves even optional git dependencies, so a
-//! dependency would make craft-fonts required for every build. Apps read `fonts/manifest.txt`
-//! from their own `build.rs` when the `CRAFT_FONTS_DIR` build option is set; see
+//! dependency would make asdesign-fonts required for every build. Apps read `fonts/manifest.txt`
+//! from their own `build.rs` when the `ASDESIGN_FONTS_DIR` build option is set; see
 //! `docs/integration.md`. This crate is for tools and tests that can afford the dependency, and it
 //! keeps the manifest format ([`parse_manifest`]) defined in one place.
 #![deny(
@@ -62,10 +62,10 @@ pub fn embedded(font: &Font) -> Option<&'static [u8]> {
         .and_then(|i| EMBEDDED.get(i).copied())
 }
 
-/// The environment variable (and build option) naming a craft-fonts checkout.
-pub const DIR_ENV: &str = "CRAFT_FONTS_DIR";
+/// The environment variable (and build option) naming a asdesign-fonts checkout.
+pub const DIR_ENV: &str = "ASDESIGN_FONTS_DIR";
 
-/// The craft-fonts checkout named by `CRAFT_FONTS_DIR`, if it is set and holds a manifest.
+/// The asdesign-fonts checkout named by `ASDESIGN_FONTS_DIR`, if it is set and holds a manifest.
 pub fn dir_from_env() -> Option<PathBuf> {
     let dir = PathBuf::from(std::env::var_os(DIR_ENV)?);
     dir.join("fonts/manifest.txt").is_file().then_some(dir)
@@ -156,7 +156,7 @@ mod tests {
     #[test]
     fn a_missing_checkout_is_an_error() {
         assert!(matches!(
-            load(Path::new("/nonexistent/craft-fonts")),
+            load(Path::new("/nonexistent/asdesign-fonts")),
             Err(LoadError::Io { .. })
         ));
     }

@@ -1,65 +1,65 @@
-# Using craft-fonts in a Crafting App
+# Using asdesign-fonts in a ASDesign App
 
-craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
+asdesign-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
 with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese
 UI and document fallback).
 
 ## Why not a Cargo dependency
 
 Cargo resolves every dependency in `Cargo.toml`, optional ones included, even when the feature
-that enables them is off. A git dependency on craft-fonts would make every build (offline, in a
-fork, on a mirror) need this repository. So apps never list craft-fonts in `Cargo.toml`. The build
+that enables them is off. A git dependency on asdesign-fonts would make every build (offline, in a
+fork, on a mirror) need this repository. So apps never list asdesign-fonts in `Cargo.toml`. The build
 option is an environment variable instead.
 
-## The build option: `CRAFT_FONTS_DIR`
+## The build option: `ASDESIGN_FONTS_DIR`
 
 ```sh
-git clone https://github.com/storytold/craft-fonts ../craft-fonts
-CRAFT_FONTS_DIR=$PWD/../craft-fonts cargo build --release
+git clone https://github.com/mamankub/asdesign-fonts ../asdesign-fonts
+ASDESIGN_FONTS_DIR=$PWD/../asdesign-fonts cargo build --release
 ```
 
 - **Unset** (the default): nothing changes. The app uses its own bundled fonts and system fonts.
-- **Set to a craft-fonts checkout:** the app's `build.rs` reads `fonts/manifest.txt` and embeds
+- **Set to a asdesign-fonts checkout:** the app's `build.rs` reads `fonts/manifest.txt` and embeds
   every font it lists.
 - **Set but not a checkout** (no manifest, missing file): the build prints a `cargo::warning` and
-  carries on without craft-fonts, unless `CRAFT_FONTS_REQUIRED=1` is also set, which turns it
+  carries on without asdesign-fonts, unless `ASDESIGN_FONTS_REQUIRED=1` is also set, which turns it
   into a build error. Release workflows set both, so a release can't silently ship without them.
 
-Use an **absolute** path (e.g. `CRAFT_FONTS_DIR=$PWD/../craft-fonts`): Cargo runs build scripts in
-the crate's own directory, so a relative path would resolve from there. `CRAFT_FONTS_DIR` is read by
+Use an **absolute** path (e.g. `ASDESIGN_FONTS_DIR=$PWD/../asdesign-fonts`): Cargo runs build scripts in
+the crate's own directory, so a relative path would resolve from there. `ASDESIGN_FONTS_DIR` is read by
 `build.rs`, so changing it rebuilds only the crate that embeds the fonts.
 
 ## The `build.rs` recipe
 
 Put this in the build script of the one crate that installs fonts (usually the UI or text crate).
-It has no dependencies; the manifest format is defined in `crates/craft-fonts/src/parse.rs`.
+It has no dependencies; the manifest format is defined in `crates/asdesign-fonts/src/parse.rs`.
 
 ```rust
 use std::fmt::Write as _;
 use std::path::PathBuf;
 
 fn main() {
-    println!("cargo::rerun-if-env-changed=CRAFT_FONTS_DIR");
-    println!("cargo::rerun-if-env-changed=CRAFT_FONTS_REQUIRED");
-    let mut src = String::from("pub static CRAFT_FONTS: &[CraftFont] = &[\n");
-    if let Some(dir) = std::env::var_os("CRAFT_FONTS_DIR").map(PathBuf::from) {
-        match craft_fonts(&dir) {
+    println!("cargo::rerun-if-env-changed=ASDESIGN_FONTS_DIR");
+    println!("cargo::rerun-if-env-changed=ASDESIGN_FONTS_REQUIRED");
+    let mut src = String::from("pub static ASDESIGN_FONTS: &[AsdesignFont] = &[\n");
+    if let Some(dir) = std::env::var_os("ASDESIGN_FONTS_DIR").map(PathBuf::from) {
+        match asdesign_fonts(&dir) {
             Ok(entries) => src.push_str(&entries),
-            Err(e) if std::env::var_os("CRAFT_FONTS_REQUIRED").is_some() => {
-                println!("cargo::error=CRAFT_FONTS_DIR={}: {e}", dir.display());
+            Err(e) if std::env::var_os("ASDESIGN_FONTS_REQUIRED").is_some() => {
+                println!("cargo::error=ASDESIGN_FONTS_DIR={}: {e}", dir.display());
             }
-            Err(e) => println!("cargo::warning=building without craft-fonts: CRAFT_FONTS_DIR={}: {e}", dir.display()),
+            Err(e) => println!("cargo::warning=building without asdesign-fonts: ASDESIGN_FONTS_DIR={}: {e}", dir.display()),
         }
     }
     src.push_str("];\n");
-    let out = PathBuf::from(std::env::var_os("OUT_DIR").unwrap_or_default()).join("craft_fonts.rs");
+    let out = PathBuf::from(std::env::var_os("OUT_DIR").unwrap_or_default()).join("asdesign_fonts.rs");
     if let Err(e) = std::fs::write(&out, src) {
         println!("cargo::error=writing {}: {e}", out.display());
     }
 }
 
-/// One `CraftFont { .. }` initialiser per manifest line.
-fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
+/// One `AsdesignFont { .. }` initialiser per manifest line.
+fn asdesign_fonts(dir: &std::path::Path) -> Result<String, String> {
     let manifest = dir.join("fonts/manifest.txt");
     println!("cargo::rerun-if-changed={}", manifest.display());
     let text = std::fs::read_to_string(&manifest).map_err(|e| format!("{}: {e}", manifest.display()))?;
@@ -80,7 +80,7 @@ fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
         let scripts: Vec<String> = scripts.split(',').map(|s| format!("{:?}", s.trim())).collect();
         let _ = writeln!(
             out,
-            "    CraftFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], bytes: include_bytes!({:?}) }},",
+            "    AsdesignFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], bytes: include_bytes!({:?}) }},",
             scripts.join(", "),
             path.display().to_string(),
         );
@@ -92,8 +92,8 @@ fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
 And in the crate:
 
 ```rust
-/// A font from the optional craft-fonts build input (empty unless built with `CRAFT_FONTS_DIR`).
-pub struct CraftFont {
+/// A font from the optional asdesign-fonts build input (empty unless built with `ASDESIGN_FONTS_DIR`).
+pub struct AsdesignFont {
     pub family: &'static str,
     pub style: &'static str,
     /// ISO 15924 scripts the font is for, e.g. `"Jpan"`.
@@ -101,52 +101,52 @@ pub struct CraftFont {
     pub bytes: &'static [u8],
 }
 
-include!(concat!(env!("OUT_DIR"), "/craft_fonts.rs"));
+include!(concat!(env!("OUT_DIR"), "/asdesign_fonts.rs"));
 ```
 
-`CRAFT_FONTS` is always defined, so there is no `cfg` to thread through: an empty slice means the
-app was built without craft-fonts. Code that uses it must work when it is empty.
+`ASDESIGN_FONTS` is always defined, so there is no `cfg` to thread through: an empty slice means the
+app was built without asdesign-fonts. Code that uses it must work when it is empty.
 
 ## Using the fonts
 
 - **UI (egui):** add each `Jpan` font as a fallback at the end of every font family, after the
   app's own fonts and before system-font discovery, so Japanese text renders the same everywhere
-  the app was built with craft-fonts.
+  the app was built with asdesign-fonts.
 - **Document text engines:** register them as fallback faces for Japanese, after the document's
   requested font and the app's bundled fonts.
 - **Web (wasm32):** the recipe embeds only `BIZ UDPGothic Regular` (~4.5 MB); all four fonts are
   ~24 MB, over typical per-file hosting limits. If the app's web build has a size check, measure
-  with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
+  with `ASDESIGN_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
-- Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and
-  CI should run them with `CRAFT_FONTS_DIR` set so they are exercised.
+- Tests that assert on these fonts' glyphs must skip (not fail) when `ASDESIGN_FONTS` is empty, and
+  CI should run them with `ASDESIGN_FONTS_DIR` set so they are exercised.
 
 ## Releases and licences
 
 The fonts are OFL-1.1: they can be embedded and redistributed, but the licence text must go with
-them. In `release.yml`, check out craft-fonts at a pinned commit and build with it:
+them. In `release.yml`, check out asdesign-fonts at a pinned commit and build with it:
 
 ```yaml
 - uses: actions/checkout@v4
   with:
-    repository: storytold/craft-fonts
+    repository: mamankub/asdesign-fonts
     ref: <full commit SHA>        # bump deliberately
-    path: craft-fonts
+    path: asdesign-fonts
 # then, on the build steps:
 env:
-  CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
-  CRAFT_FONTS_REQUIRED: "1"
+  ASDESIGN_FONTS_DIR: ${{ github.workspace }}/asdesign-fonts
+  ASDESIGN_FONTS_REQUIRED: "1"
 ```
 
-Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
-app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
-craft-fonts' `ATTRIBUTION.md`.
+Packages built with asdesign-fonts must include each embedded font's licence file (copy
+`$ASDESIGN_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
+app's `NOTICE` must say that builds made with `ASDESIGN_FONTS_DIR` embed the fonts listed in
+asdesign-fonts' `ATTRIBUTION.md`.
 
 ## Adding a font
 
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
-3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
+3. `cargo test --workspace`: `asdesign-fonts-tests` checks the checksum, licence, family name and,
    for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.

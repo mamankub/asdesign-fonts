@@ -1,7 +1,7 @@
 # Font attribution
 
 Every font in `fonts/`, with its source and licence. The files are byte-identical to the pinned
-upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
+upstream sources (checked by `asdesign-fonts-tests`, which verifies each SHA-256 in
 `fonts/manifest.txt`).
 
 | File | Family / style | Author | Source (pinned) | Licence |
